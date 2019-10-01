@@ -2,6 +2,7 @@ import time
 
 time_dict = {}
 
+# Create add_timer decorator to add timing functionality to functions
 def add_timer(func):
 
     def inner(*args, **kwargs):
@@ -10,12 +11,11 @@ def add_timer(func):
         end = time.time()
         global time_dict
         time_dict.setdefault(func.__name__, []).append(end-start)
-        #print(f"Total time taken for {func.__name__} is {end-start:.08f}.")
-
 
     return inner
 
 
+# Create a few no-op functions
 def a():
     pass
 def b():
@@ -29,6 +29,7 @@ def y():
 def z():
     pass
 
+# Create function call factory
 func_dict = {
     'a': a,
     'b': b,
@@ -38,6 +39,12 @@ func_dict = {
     'z': z,
 }
 
+# Light wrapper function for calling into the factory.  Function exists solely for the decorator.
+@add_timer
+def dict_func(func_name):
+    func_dict[func_name]()
+
+# Create if elif chain function.
 @add_timer
 def switch_func(func_name):
     if func_name == 'x':
@@ -53,15 +60,13 @@ def switch_func(func_name):
     elif func_name == 'c':
         c()
 
-@add_timer
-def dict_func(func_name):
-    func_dict[func_name]()
 
-
+# Loop over all cases 1000 times to try and get a good average.
 for loop in range(1000):
     for func in ['x','y','z','a','b','c']:
         switch_func(func)
         dict_func(func)
 
+# Print out averages
 for func_name, time_list in time_dict.items():
     print(f"{func_name} had an average run of {sum(time_list)/len(time_list):.08f}.")
